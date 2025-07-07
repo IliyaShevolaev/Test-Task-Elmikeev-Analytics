@@ -2,9 +2,9 @@
 
 namespace App\Models\TargetApi;
 
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
 
-class Income extends Model
+class Income extends TargetApiModel
 {
     protected $fillable = [
         'income_id',
@@ -20,4 +20,11 @@ class Income extends Model
         'warehouse_name',
         'nm_id',
     ];
+
+    protected static string $apiPath = 'incomes';
+
+    protected static function getDateFromForSyncData(): string
+    {
+        return Carbon::parse(Income::orderBy('date', 'desc')->first()->date)->subDay()->format('Y-m-d');
+    }
 }

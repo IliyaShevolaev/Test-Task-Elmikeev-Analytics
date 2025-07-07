@@ -39,6 +39,8 @@ return new class extends Migration
             $table->string('category')->nullable();
             $table->string('brand')->nullable();
             $table->boolean('is_storno')->nullable();
+
+            //$table->unique(['date', 'g_number', 'barcode', 'nm_id']);
         });
     }
 

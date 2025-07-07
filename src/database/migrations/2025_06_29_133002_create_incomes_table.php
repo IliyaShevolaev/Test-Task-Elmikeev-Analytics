@@ -24,6 +24,8 @@ return new class extends Migration
             $table->date('date_close')->nullable();
             $table->string('warehouse_name')->nullable();
             $table->string('nm_id')->nullable();
+
+            $table->unique(['date', 'income_id', 'barcode', 'nm_id']);
         });
     }
 

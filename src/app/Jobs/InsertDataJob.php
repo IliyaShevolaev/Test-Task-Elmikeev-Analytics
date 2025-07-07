@@ -3,12 +3,16 @@
 namespace App\Jobs;
 
 use App\Services\TargetApiService;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Queue\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
 class InsertDataJob implements ShouldQueue
 {
     use Queueable;
+
+    private $secondsDelayBetweenRetry = 15;
+    private $secondsDelayBetweenNextJob = 1;
 
     protected $currentPage;
     protected $maxPagesToRequest;
@@ -42,25 +46,42 @@ class InsertDataJob implements ShouldQueue
     public function handle(TargetApiService $targetApiService): void
     {
         $requestedPages = 0;
+        $totalInsert = 0;
+
         while ($this->maxPagesToRequest > $requestedPages) {
-            $responseJson = $targetApiService->requestData(
+            $response = $targetApiService->requestData(
                 $this->targetApiEndpointPath,
                 $this->currentPage,
                 $this->dateFrom,
                 $this->dateTo
             );
 
-            if (empty($responseJson['data'])) {
-                break;
+            if ($response['status'] == 429) {
+                Log::channel('importlog')->info('Too many requests to API, waiting ' . $this->secondsDelayBetweenRetry . ' sec');
+
+                self::dispatch(
+                    $this->currentPage,
+                    $this->maxPagesToRequest,
+                    $this->targetModel,
+                    $this->targetApiEndpointPath,
+                    $this->dateFrom,
+                    $this->dateTo
+                )->delay(now()->addSeconds($this->secondsDelayBetweenRetry));
+
+                $this->fail();
+                return;
             }
 
-            $this->targetModel::insert($responseJson['data']);
+            $this->targetModel::insertOrIgnore($response['data']['data']);
+            $totalInsert += count($response['data']['data']);
 
             $this->currentPage++;
             $requestedPages++;
         }
 
-        if (!empty($responseJson['links']['next'])) {
+        Log::channel('importlog')->info('Inserted ' . $totalInsert . ' records per job to' . $this->targetModel);
+
+        if (!empty($response['data']['links']['next'])) {
             self::dispatch(
                 $this->currentPage,
                 $this->maxPagesToRequest,
@@ -68,7 +89,11 @@ class InsertDataJob implements ShouldQueue
                 $this->targetApiEndpointPath,
                 $this->dateFrom,
                 $this->dateTo
-            )->delay(now()->addSeconds(1));
+            )->delay(now()->addSeconds($this->secondsDelayBetweenNextJob));
+        } else {
+            Log::channel('importlog')->info('End imprort data from ' . $this->targetModel);
+            Log::channel('importlog')->info('Records in request API: ' . $response['data']['meta']['total']);
+            Log::channel('importlog')->info('Records in DB: ' . $this->targetModel::count());
         }
     }
 }

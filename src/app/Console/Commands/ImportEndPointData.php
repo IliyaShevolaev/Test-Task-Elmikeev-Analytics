@@ -9,6 +9,7 @@ class ImportEndPointData extends Command
 {
     /**
      * The name and signature of the console command.
+     * Example: docker compose run --rm artisan import:endpoints-data "App\\Models\\TargetApi\\Income" incomes 2023-01-01 2026-01-01
      *
      * @var string
      */

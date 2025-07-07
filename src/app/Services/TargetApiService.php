@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Jobs\InsertDataJob;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
 
 class TargetApiService
@@ -24,7 +25,7 @@ class TargetApiService
         int $page,
         string $dateFrom,
         string $dateTo
-    ): array|null {
+    ): array {
         $response = Http::get($this->apiUrl . '/api/' . $endPointPath, [
             'dateFrom' => $dateFrom,
             'dateTo' => $dateTo,
@@ -33,7 +34,10 @@ class TargetApiService
             'limit' => self::LIMIT_PAGES_TO_REQUEST,
         ]);
 
-        return $response->json();
+        return [
+            'data' => $response->json(),
+            'status' => $response->status(),
+        ];
     }
 
     public function storeData(
@@ -42,6 +46,8 @@ class TargetApiService
         string $dateFrom,
         string $dateTo
     ): void {
+        Log::channel('importlog')->info('Starting imprort data from ' . $targetApiModel);
+
         InsertDataJob::dispatch(
             1,
             self::MAX_PAGES_TO_REQUEST,

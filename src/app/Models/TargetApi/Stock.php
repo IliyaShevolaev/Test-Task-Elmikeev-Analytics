@@ -2,9 +2,10 @@
 
 namespace App\Models\TargetApi;
 
-use Illuminate\Database\Eloquent\Model;
+use Carbon\Carbon;
+use App\Services\TargetApiService;
 
-class Stock extends Model
+class Stock extends TargetApiModel
 {
     protected $fillable = [
         'date',
@@ -27,4 +28,22 @@ class Stock extends Model
         'price',
         'discount',
     ];
+
+    protected static string $apiPath = 'stocks';
+
+    protected static function getDateFromForSyncData(): string
+    {
+        return Carbon::now()->format('Y-m-d');
+    }
+
+    public static function importData(TargetApiService $targetApiService): void
+    {
+        self::syncData($targetApiService);
+    }
+
+    public static function syncData(TargetApiService $targetApiService): void
+    {
+        static::truncate();
+        parent::syncData($targetApiService);
+    }
 }
