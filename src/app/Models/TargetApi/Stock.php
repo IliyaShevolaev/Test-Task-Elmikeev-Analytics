@@ -44,6 +44,6 @@ class Stock extends TargetApiModel
     public static function syncData(TargetApiService $targetApiService): void
     {
         static::truncate();
-        parent::syncData($targetApiService);
+        parent::importData($targetApiService);
     }
 }

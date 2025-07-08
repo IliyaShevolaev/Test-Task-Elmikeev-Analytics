@@ -40,7 +40,7 @@ return new class extends Migration
             $table->string('brand')->nullable();
             $table->boolean('is_storno')->nullable();
 
-            //$table->unique(['date', 'g_number', 'barcode', 'nm_id']);
+            $table->unique(['barcode', 'g_number', 'sale_id', 'nm_id']);
         });
     }
 

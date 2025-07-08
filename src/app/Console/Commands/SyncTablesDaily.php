@@ -30,8 +30,8 @@ class SyncTablesDaily extends Command
      */
     public function handle(TargetApiService $targetApiService)
     {
+        Order::importData($targetApiService);
         Sale::syncData($targetApiService);
-        Order::syncData($targetApiService);
         Income::syncData($targetApiService);
         Stock::syncData($targetApiService);
     }

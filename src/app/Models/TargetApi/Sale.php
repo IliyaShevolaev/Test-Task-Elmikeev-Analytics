@@ -40,6 +40,6 @@ class Sale extends TargetApiModel
 
     protected static function getDateFromForSyncData(): string
     {
-        return Carbon::parse(Income::orderBy('date', 'desc')->first()->date)->subDay()->format('Y-m-d');
+        return Carbon::parse(Sale::orderBy('date', 'desc')->first()->date)->subDay()->format('Y-m-d');
     }
 }

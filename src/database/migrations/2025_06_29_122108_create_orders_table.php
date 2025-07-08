@@ -30,8 +30,6 @@ return new class extends Migration
             $table->string('brand')->nullable();
             $table->boolean('is_cancel')->nullable();
             $table->dateTime('cancel_dt')->nullable();
-
-            $table->unique(['date', 'g_number', 'nm_id', 'subject']);
         });
     }
 

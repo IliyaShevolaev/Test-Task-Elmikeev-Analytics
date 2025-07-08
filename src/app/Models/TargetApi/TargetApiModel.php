@@ -14,6 +14,8 @@ abstract class TargetApiModel extends Model
 
     public static function importData(TargetApiService $targetApiService): void
     {
+        static::truncate();
+        
         $targetApiService->storeData(
             static::class,
             static::$apiPath,
@@ -24,11 +26,15 @@ abstract class TargetApiModel extends Model
 
     public static function syncData(TargetApiService $targetApiService): void
     {
-        $targetApiService->storeData(
-            static::class,
-            static::$apiPath,
-            static::getDateFromForSyncData(),
-            config('targetapi.default_date_to')
-        );
+        if (static::count() > 0) {
+            $targetApiService->storeData(
+                static::class,
+                static::$apiPath,
+                static::getDateFromForSyncData(),
+                config('targetapi.default_date_to')
+            );
+        } else {
+            static::importData($targetApiService);
+        }
     }
 }

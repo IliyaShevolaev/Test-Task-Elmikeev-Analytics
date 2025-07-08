@@ -29,8 +29,8 @@ class Order extends TargetApiModel
 
     protected static string $apiPath = 'orders';
 
-    protected static function getDateFromForSyncData(): string
+    public static function getDateFromForSyncData(): string
     {
-        return Carbon::parse(Income::orderBy('date', 'desc')->first()->date)->subDay()->format('Y-m-d');
+        return config('targetapi.default_date_from');
     }
 }
