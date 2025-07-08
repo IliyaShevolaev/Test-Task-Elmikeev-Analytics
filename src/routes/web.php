@@ -13,7 +13,7 @@ Route::get('/', function () {
 });
 
 Route::get('/test', function (TargetApiService $targetApiService) {
-    //104529
-    //dd(Order::count());
-    //Order::syncData($targetApiService);
+
+    dd(Stock::count());
+    //Stock::syncData($targetApiService);
 });
