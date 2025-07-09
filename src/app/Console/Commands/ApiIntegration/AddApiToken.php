@@ -12,11 +12,11 @@ class AddApiToken extends Command
 {
     /**
      * The name and signature of the console command.
-     * Example: artisan api-integration:add-api-token YOUR-TOKEN ACCOUNT-ID SERVICE-ID TOKEN-TYPE-ID
+     * Example: artisan api-integration:add-api-token YOUR-TOKEN ACCOUNT-ID SERVICE-ID TOKEN-TYPE-NAME
      *
      * @var string
      */
-    protected $signature = 'api-integration:add-api-token {token} {accountId} {apiServiceId} {tokenTypeId}';
+    protected $signature = 'api-integration:add-api-token {token} {accountId} {apiServiceId} {tokenType}';
 
     /**
      * The console command description.
@@ -32,7 +32,7 @@ class AddApiToken extends Command
     {
         $account = Account::find($this->argument('accountId'));
         $apiService = ApiService::find($this->argument('apiServiceId'));
-        $tokenType = TokenType::find($this->argument('tokenTypeId'));
+        $tokenType = TokenType::where('name', $this->argument('tokenType'))->first();
 
         if (!$account || !$apiService || !$tokenType) {
             $this->warn('Wrong id data');

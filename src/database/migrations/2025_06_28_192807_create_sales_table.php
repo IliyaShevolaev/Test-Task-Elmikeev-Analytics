@@ -40,7 +40,10 @@ return new class extends Migration
             $table->string('brand')->nullable();
             $table->boolean('is_storno')->nullable();
 
-            $table->unique(['barcode', 'g_number', 'sale_id', 'nm_id']);
+            $table->foreignId('account_id')->constrained()->onDelete('cascade');
+            $table->string('hash_sum');
+
+            $table->unique('hash_sum');
         });
     }
 

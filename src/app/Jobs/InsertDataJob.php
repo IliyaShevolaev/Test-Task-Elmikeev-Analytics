@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\ApiIntegration\Account;
 use App\Services\TargetApiService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Foundation\Queue\Queueable;
@@ -20,6 +21,7 @@ class InsertDataJob implements ShouldQueue
     protected $targetApiEndpointPath;
     protected $dateFrom;
     protected $dateTo;
+    protected $accountId;
 
     /**
      * Create a new job instance.
@@ -30,7 +32,8 @@ class InsertDataJob implements ShouldQueue
         string $targetModel,
         string $targetApiEndpointPath,
         string $dateFrom,
-        string $dateTo
+        string $dateTo,
+        int $accountId
     ) {
         $this->currentPage = $currentPage;
         $this->maxPagesToRequest = $maxPagesToRequest;
@@ -38,6 +41,7 @@ class InsertDataJob implements ShouldQueue
         $this->targetApiEndpointPath = $targetApiEndpointPath;
         $this->dateTo = $dateTo;
         $this->dateFrom = $dateFrom;
+        $this->accountId = $accountId;
     }
 
     /**
@@ -45,6 +49,8 @@ class InsertDataJob implements ShouldQueue
      */
     public function handle(TargetApiService $targetApiService): void
     {
+        $targetApiService->withAccount(Account::find($this->accountId));
+
         $requestedPages = 0;
         $totalInsert = 0;
 
@@ -65,13 +71,18 @@ class InsertDataJob implements ShouldQueue
                     $this->targetModel,
                     $this->targetApiEndpointPath,
                     $this->dateFrom,
-                    $this->dateTo
+                    $this->dateTo,
+                    $this->accountId
                 )->delay(now()->addSeconds($this->secondsDelayBetweenRetry));
 
                 $this->fail();
-                return;
             }
 
+            foreach($response['data']['data'] as &$item) {
+                $item['account_id'] = $this->accountId;
+                $item['hash_sum'] = $this->targetModel::generateHashSum($item);
+            }
+            
             $this->targetModel::insertOrIgnore($response['data']['data']);
             $totalInsert += count($response['data']['data']);
 
@@ -88,7 +99,8 @@ class InsertDataJob implements ShouldQueue
                 $this->targetModel,
                 $this->targetApiEndpointPath,
                 $this->dateFrom,
-                $this->dateTo
+                $this->dateTo,
+                $this->accountId
             )->delay(now()->addSeconds($this->secondsDelayBetweenNextJob));
         } else {
             Log::channel('importlog')->info('End imprort data from ' . $this->targetModel);

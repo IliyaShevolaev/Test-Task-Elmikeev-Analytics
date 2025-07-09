@@ -10,10 +10,10 @@ class AddApiService extends Command
 {
     /**
      * The name and signature of the console command.
-     * Example: artisan api-integration:add-api-service YOUR-SERVICE-NAME
+     * Example: artisan api-integration:add-api-service YOUR-SERVICE-NAME YOUR-URL
      * @var string
      */
-    protected $signature = 'api-integration:add-api-service {name}';
+    protected $signature = 'api-integration:add-api-service {name} {url}';
 
     /**
      * The console command description.
@@ -35,7 +35,9 @@ class AddApiService extends Command
         }
 
         ApiService::create([
-            'name' => $this->argument('name')
+            'name' => $this->argument('name'),
+            'url' => $this->argument('url'),
+            'class_name' => 'App\Services\\' . $this->argument('name'),
         ]);
 
         $pathToService = app_path("Services/{$this->argument('name')}.php");
@@ -45,19 +47,55 @@ class AddApiService extends Command
 
     private function getServiceTemplate(string $className): string
     {
-        return 
-        <<<PHP
-        <?php
+        return
+            <<<PHP
+<?php
 
-        namespace App\Services;
+namespace App\Services;
 
-        class {$className}
-        {
-            public function request()
-            {
-                
-            }
+use App\Models\ApiIntegration\Account;
+use Illuminate\Support\Facades\Http;
+use App\Models\ApiIntegration\ApiService;
+use App\Models\ApiIntegration\ApiToken;
+
+class {$className}
+{
+    private \$apiUrl;
+    private \$apiKey;
+    private \$account;
+    private \$apiService;
+
+    public function __construct()
+    {
+        \$apiService = ApiService::where('class_name', self::class)->first();
+
+        \$this->apiService = \$apiService;
+        \$this->apiUrl = \$apiService->url;
+    }
+
+    public function withAccount(Account \$account)
+    {
+        \$this->account = \$account;
+
+        \$token = ApiToken::where('account_id', \$account->id)
+            ->where('api_service_id', \$this->apiService->id)
+            ->first();
+
+        if (!\$token) {
+            throw new \Exception("API token not found");
         }
-        PHP;
+
+        \$this->apiKey = \$token->token;
+    }
+
+    public function requestData(): array {
+        // Your code here
+    }
+
+    public function storeData(): void {
+        // Your code here
+    }
+}
+PHP;
     }
 }

@@ -30,6 +30,11 @@ return new class extends Migration
             $table->string('brand')->nullable();
             $table->boolean('is_cancel')->nullable();
             $table->dateTime('cancel_dt')->nullable();
+
+            $table->foreignId('account_id')->constrained()->onDelete('cascade');
+            $table->string('hash_sum');
+
+            $table->unique('hash_sum');
         });
     }
 

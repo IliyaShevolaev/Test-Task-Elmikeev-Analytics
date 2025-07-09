@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ApiIntegration\Account;
 use App\Services\TargetApiService;
 use Illuminate\Console\Command;
 
@@ -29,11 +30,14 @@ class ImportEndPointData extends Command
     {
         $this->info('Starting data import');
 
+        $defaultAccount = Account::first();
+        $targetApiService->withAccount($defaultAccount);
+
         $targetApiService->storeData(
             $this->argument('className'),
             $this->argument('apiPath'),
             $this->argument('dateFrom'),
-            $this->argument('dateTo')
+            $this->argument('dateTo'),
         );
     }
 }

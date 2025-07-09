@@ -25,7 +25,10 @@ return new class extends Migration
             $table->string('warehouse_name')->nullable();
             $table->string('nm_id')->nullable();
 
-            $table->unique(['date', 'income_id', 'barcode', 'nm_id']);
+            $table->foreignId('account_id')->constrained()->onDelete('cascade');
+            $table->string('hash_sum');
+
+            $table->unique('hash_sum');
         });
     }
 

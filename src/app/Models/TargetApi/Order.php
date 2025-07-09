@@ -2,6 +2,7 @@
 
 namespace App\Models\TargetApi;
 
+use App\Models\ApiIntegration\Account;
 use Carbon\Carbon;
 
 class Order extends TargetApiModel
@@ -25,12 +26,15 @@ class Order extends TargetApiModel
         'brand',
         'is_cancel',
         'cancel_dt',
+        'account_id'
     ];
 
     protected static string $apiPath = 'orders';
 
-    public static function getDateFromForSyncData(): string
+    public static function getDateFromForSyncData(Account $account): string
     {
-        return config('targetapi.default_date_from');
+        $latestOrder = Order::where('account_id', $account->id)->orderBy('date', 'desc')->first();
+
+        return Carbon::parse($latestOrder->date)->subDay()->format('Y-m-d');
     }
 }

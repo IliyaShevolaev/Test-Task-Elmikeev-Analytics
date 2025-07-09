@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class ApiService extends Model
 {
-    protected $fillable = ['name'];
+    protected $fillable = ['name', 'url', 'class_name'];
 
     public function tokenTypes(): BelongsToMany
     {

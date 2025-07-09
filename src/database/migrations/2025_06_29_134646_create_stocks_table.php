@@ -31,6 +31,11 @@ return new class extends Migration
             $table->string('sc_code')->nullable();
             $table->decimal('price')->nullable();
             $table->decimal('discount')->nullable();
+
+            $table->foreignId('account_id')->constrained()->onDelete('cascade');
+            $table->string('hash_sum');
+
+            $table->unique('hash_sum');
         });
     }
 

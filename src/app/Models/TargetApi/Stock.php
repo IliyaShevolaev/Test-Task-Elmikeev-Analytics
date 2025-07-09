@@ -2,6 +2,7 @@
 
 namespace App\Models\TargetApi;
 
+use App\Models\ApiIntegration\Account;
 use Carbon\Carbon;
 use App\Services\TargetApiService;
 
@@ -27,23 +28,24 @@ class Stock extends TargetApiModel
         'sc_code',
         'price',
         'discount',
+        'account_id'
     ];
 
     protected static string $apiPath = 'stocks';
 
-    protected static function getDateFromForSyncData(): string
+    protected static function getDateFromForSyncData(Account $account): string
     {
         return Carbon::now()->format('Y-m-d');
     }
 
-    public static function importData(TargetApiService $targetApiService): void
+    public static function importData(TargetApiService $targetApiService, Account $account): void
     {
-        self::syncData($targetApiService);
+        self::syncData($targetApiService, $account);
     }
 
-    public static function syncData(TargetApiService $targetApiService): void
+    public static function syncData(TargetApiService $targetApiService, Account $account): void
     {
-        static::truncate();
-        parent::syncData($targetApiService);
+        static::truncateAccountData($account);
+        parent::syncData($targetApiService, $account);
     }
 }

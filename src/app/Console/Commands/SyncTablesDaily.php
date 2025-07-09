@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\ApiIntegration\Account;
 use App\Models\TargetApi\Income;
 use App\Models\TargetApi\Order;
 use App\Models\TargetApi\Sale;
@@ -30,9 +31,11 @@ class SyncTablesDaily extends Command
      */
     public function handle(TargetApiService $targetApiService)
     {
-        Order::importData($targetApiService);
-        Sale::syncData($targetApiService);
-        Income::syncData($targetApiService);
-        Stock::syncData($targetApiService);
+        foreach (Account::all() as $account) {
+            Order::importData($targetApiService, $account);
+            Sale::syncData($targetApiService, $account);
+            Income::syncData($targetApiService, $account);
+            Stock::syncData($targetApiService, $account);
+        }
     }
 }

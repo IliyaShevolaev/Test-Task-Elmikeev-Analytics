@@ -7,4 +7,7 @@ return [
 
     'default_date_from' => '2020-01-01',
     'default_date_to' => '2030-01-01',
+
+    'name' => 'wb_api',
+    'class_name' => 'App\Services\TargetApiService',
 ];

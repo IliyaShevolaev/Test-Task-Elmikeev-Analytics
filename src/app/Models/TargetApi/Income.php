@@ -2,6 +2,7 @@
 
 namespace App\Models\TargetApi;
 
+use App\Models\ApiIntegration\Account;
 use Carbon\Carbon;
 
 class Income extends TargetApiModel
@@ -19,12 +20,15 @@ class Income extends TargetApiModel
         'date_close',
         'warehouse_name',
         'nm_id',
+        'account_id'
     ];
 
     protected static string $apiPath = 'incomes';
 
-    protected static function getDateFromForSyncData(): string
+    protected static function getDateFromForSyncData(Account $account): string
     {
-        return Carbon::parse(Income::orderBy('date', 'desc')->first()->date)->subDay()->format('Y-m-d');
+        $latestIncome = Income::where('account_id', $account->id)->orderBy('date', 'desc')->first();
+
+        return Carbon::parse($latestIncome->date)->subDay()->format('Y-m-d');
     }
 }
