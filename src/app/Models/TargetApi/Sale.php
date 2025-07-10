@@ -44,6 +44,10 @@ class Sale extends TargetApiModel
     {
         $latestSale = Sale::where('account_id', $account->id)->orderBy('date', 'desc')->first();
 
+        if (!$latestSale) {
+            return config('targetapi.default_date_from');
+        }
+
         return Carbon::parse($latestSale->date)->subDay()->format('Y-m-d');
     }
 }

@@ -35,6 +35,10 @@ class Order extends TargetApiModel
     {
         $latestOrder = Order::where('account_id', $account->id)->orderBy('date', 'desc')->first();
 
+        if (!$latestOrder) {
+            return config('targetapi.default_date_from');
+        }
+
         return Carbon::parse($latestOrder->date)->subDay()->format('Y-m-d');
     }
 }

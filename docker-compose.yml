@@ -43,3 +43,27 @@ services:
     volumes:
       - "./src:/var/www/laravel"
     entrypoint: ["php", "/var/www/laravel/artisan"]
+
+  worker:
+    build:
+      context: docker/dockerfiles
+      dockerfile: php.Dockerfile
+    volumes:
+      - ./src:/var/www/laravel
+    command: php /var/www/laravel/artisan queue:work
+    depends_on:
+      - mysql
+      - php
+
+  schedule:
+    build:
+      context: docker/dockerfiles
+      dockerfile: php.Dockerfile
+    volumes:
+      - ./src:/var/www/laravel
+    command: >
+      sh -c "while true; do php /var/www/laravel/artisan schedule:run; sleep 60; done"
+    depends_on:
+      - php
+      - mysql
+

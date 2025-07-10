@@ -29,6 +29,10 @@ class Income extends TargetApiModel
     {
         $latestIncome = Income::where('account_id', $account->id)->orderBy('date', 'desc')->first();
 
+        if (!$latestIncome) {
+            return config('targetapi.default_date_from');
+        }        
+
         return Carbon::parse($latestIncome->date)->subDay()->format('Y-m-d');
     }
 }

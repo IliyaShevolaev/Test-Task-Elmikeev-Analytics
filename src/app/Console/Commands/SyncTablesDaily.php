@@ -32,7 +32,7 @@ class SyncTablesDaily extends Command
     public function handle(TargetApiService $targetApiService)
     {
         foreach (Account::all() as $account) {
-            Order::importData($targetApiService, $account);
+            Order::syncData($targetApiService, $account);
             Sale::syncData($targetApiService, $account);
             Income::syncData($targetApiService, $account);
             Stock::syncData($targetApiService, $account);
